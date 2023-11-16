@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.17.0.final using JasperReports Library version 6.17.0-6d93193241dd8cc42629e188b94f9e0bc5722efd  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="certificado" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="1c9c69d0-d693-4ee1-a9d7-85eebaceeb0e">
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="nome" class="java.lang.String"/>
+	<field name="cpf" class="java.lang.String"/>
+	<field name="urlImg" class="java.lang.String"/>
+	<field name="urlImgVerso" class="java.lang.String"/>
+	<field name="nomeCurso" class="java.lang.String"/>
+	<field name="dataInicio" class="java.lang.String"/>
+	<field name="horas" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="555" splitType="Stretch">
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+			<image hAlign="Center" vAlign="Middle">
+				<reportElement x="0" y="0" width="792" height="555" uuid="60835454-1354-46ed-8297-e214d1a5bdb3"/>
+				<imageExpression><![CDATA[$F{urlImg}]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="30" y="180" width="370" height="118" uuid="9b6367b3-f3eb-4bf3-a3eb-6ef35c881868"/>
+				<textElement textAlignment="Justified">
+					<font fontName="Arial" size="20"/>
+				</textElement>
+				<textFieldExpression><![CDATA["O governo municipal e a secretaria de desenvolvimento social através do Programa de Inclusão Social de Portas Abertas em parceria com o Rotary Club, certifica que:"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="275" y="419" width="125" height="30" uuid="f1f2da87-a9e2-4778-806a-4f081bf85d36">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="16"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new SimpleDateFormat("dd/MM/yyyy hh:mm").format(new Date())]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="30" y="302" width="370" height="30" uuid="5ccc7ff3-4daf-45ce-9ab5-26819c2ac337"/>
+				<textElement textAlignment="Center" markup="styled">
+					<font fontName="Arial Black" size="20" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["<style isBold='true' pdfFontName='Helvetica-Bold'>" + $F{nome} + "</style>"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="30" y="340" width="370" height="78" uuid="73ad19e0-d5d7-477b-b0f0-56de7e4423aa"/>
+				<textElement textAlignment="Justified">
+					<font fontName="Arial" size="20"/>
+				</textElement>
+				<textFieldExpression><![CDATA["participou do " + $F{nomeCurso} + " com carga horária de " + $F{horas} + " horas"]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="555">
+			<printWhenExpression><![CDATA[$F{urlImgVerso} != null ? new Boolean(true) : new Boolean(false)]]></printWhenExpression>
+			<image hAlign="Center" vAlign="Middle">
+				<reportElement x="-1" y="0" width="792" height="555" uuid="c1e42242-3484-4d14-9e85-06a538d8a2c8">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<printWhenExpression><![CDATA[$F{urlImgVerso} != null ? new Boolean(true) : new Boolean(false)]]></printWhenExpression>
+				</reportElement>
+				<imageExpression><![CDATA[$F{urlImgVerso}]]></imageExpression>
+			</image>
+		</band>
+	</detail>
+</jasperReport>
