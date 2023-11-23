@@ -7,6 +7,11 @@ import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.ArchiveException;
+import org.apache.commons.compress.archivers.ArchiveOutputStream;
+import org.apache.commons.compress.archivers.ArchiveStreamFactory;
+import org.apache.commons.compress.utils.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
@@ -108,7 +113,7 @@ public class CertificadoService {
 
                 //Fazendo refactor dos outputs
                 usuario.setUrlImg(caminhoImg + usuario.getUrlImg());
-                if(usuario.getUrlImgVerso() != null){
+                if (usuario.getUrlImgVerso() != null) {
                     usuario.setUrlImgVerso(caminhoImg + usuario.getUrlImgVerso());
                 }
                 usuario.setCpf(usuario.getCpf().replaceAll("[^0-9]", ""));
@@ -160,8 +165,9 @@ public class CertificadoService {
         }
     }
 
-    public File procurarCertificado(String cpf){
+    public File procurarCertificados(String cpf) {
         File diretorio = new File(caminhoCertificado);
+        List<File> arquivosEncontrados = new ArrayList<>();
 
         cpf = cpf.replaceAll("\"", "");
         File[] arquivos = diretorio.listFiles();
@@ -179,7 +185,7 @@ public class CertificadoService {
                         String cpfEncontrado = matcher.group();
 
                         if (cpfEncontrado.equals(cpf)) {
-                           return arquivo;
+                            arquivosEncontrados.add(arquivo);
                         }
                     }
                 }
@@ -187,7 +193,25 @@ public class CertificadoService {
         } else {
             System.out.println("O diretório está vazio ou não existe.");
         }
-        return diretorio;
+
+        // Cria um arquivo .rar
+        File arquivoRar = new File("certificados_encontrados.rar");
+        try (OutputStream arquivoSaida = new FileOutputStream(arquivoRar);
+             ArchiveOutputStream saidaCompactada = new ArchiveStreamFactory().createArchiveOutputStream(ArchiveStreamFactory.ZIP, arquivoSaida)) {
+
+            for (File arquivoEncontrado : arquivosEncontrados) {
+                ArchiveEntry entrada = saidaCompactada.createArchiveEntry(arquivoEncontrado, arquivoEncontrado.getName());
+                saidaCompactada.putArchiveEntry(entrada);
+                FileInputStream entradaArquivo = new FileInputStream(arquivoEncontrado);
+                IOUtils.copy(entradaArquivo, saidaCompactada);
+                entradaArquivo.close();
+                saidaCompactada.closeArchiveEntry();
+            }
+        } catch (IOException | ArchiveException e) {
+            e.printStackTrace();
+        }
+
+        return arquivoRar;
     }
 
 }

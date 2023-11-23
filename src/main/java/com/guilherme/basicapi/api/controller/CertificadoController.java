@@ -29,7 +29,7 @@ public class CertificadoController {
     @PostMapping("/procurar")
     public void procurarCertificado(@RequestBody String cpf, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        File arquivo = this.certificadoService.procurarCertificado(cpf); // Seu método para encontrar o arquivo com o CPF
+        File arquivo = this.certificadoService.procurarCertificados(cpf); // Seu método para encontrar o arquivo com o CPF
 
         if (arquivo.isFile()) {
             response.setContentType("application/pdf");

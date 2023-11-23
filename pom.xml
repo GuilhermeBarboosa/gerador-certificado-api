@@ -77,6 +77,11 @@
 <!--			<version>0.9.1</version>-->
 <!--		</dependency>-->
 		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-compress</artifactId>
+			<version>1.21</version> <!-- Versão mais recente disponível -->
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
