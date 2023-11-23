@@ -34,41 +34,38 @@ public class CertificadoService {
             if ((line = br.readLine()) != null) {
                 // Cabeçalhos encontrados, processar apenas se for necessário
                 String[] headers = line.split(";");
-                int nomeIndex = -1, cpfIndex = -1, telefoneIndex = -1;
+                int nomeIndex = -1, cpfIndex = -1;
 
                 // Encontrar os índices dos cabeçalhos necessários
                 for (int i = 0; i < headers.length; i++) {
                     String header = headers[i].trim().toLowerCase(); // Converta para minúsculas e remova espaços em branco
-//                    System.out.println(header);
+                    System.out.println(header);
                     if (header.equals("\uFEFFnome") || header.equals("nome")) {
                         nomeIndex = i;
                     }
                     if (header.equals("cpf")) {
                         cpfIndex = i;
                     }
-                    if (header.equals("telefone")) {
-                        telefoneIndex = i;
-                    }
                 }
 
                 // Verificar se todos os cabeçalhos foram encontrados
-                if (nomeIndex != -1 && cpfIndex != -1 && telefoneIndex != -1) {
+                if (nomeIndex != -1 && cpfIndex != -1) {
                     // Processar as linhas restantes do arquivo
                     while ((line = br.readLine()) != null) {
                         String[] campos = line.split(";");
-                        if (campos.length > Math.max(nomeIndex, Math.max(cpfIndex, telefoneIndex))) {
+                        if (campos.length > Math.max(nomeIndex, cpfIndex)) {
                             String nome = campos[nomeIndex].trim();
                             String cpf = campos[cpfIndex].trim();
-                            String telefone = campos[telefoneIndex].trim();
 
                             // Crie seu objeto UserOutput usando nome, cpf e telefone
-                            UserOutput userCreated = new UserOutput(nome, cpf, telefone, cursoInput);
+                            UserOutput userCreated = new UserOutput(nome, cpf, cursoInput);
 
                             // Adicione o objeto à lista de clientes
                             clientes.add(userCreated);
                         }
                     }
                 } else {
+                    System.out.println("Cabeçalhos não encontrados");
                     return "Cabeçalhos não encontrados";
                 }
             }

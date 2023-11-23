@@ -19,7 +19,7 @@ public class UserOutput {
     private String urlImg;
     private String urlImgVerso;
 
-    public UserOutput(String nome,String cpf,String telefone, CursoInput cursoInput) {
+    public UserOutput(String nome,String cpf, CursoInput cursoInput) {
         this.nome = nome;
         this.cpf = cpf;
         this.nomeCurso = cursoInput.getNomeCurso();
