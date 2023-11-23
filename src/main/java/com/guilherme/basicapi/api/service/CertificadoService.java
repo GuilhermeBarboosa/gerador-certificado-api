@@ -13,21 +13,23 @@ import org.springframework.util.FileCopyUtils;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class CertificadoService {
 
     private String filedir = "C:/Users/guilherme.rocha/Documents/Projetos/API's/certificado-api/src/main/resources/";
-    private String caminhoArquivo = filedir + "certificados/";
+    private String caminhoCertificado = filedir + "certificados/";
     private String caminhoImg = filedir + "images/";
 
     public String gerarCertificado(CursoInput cursoInput) {
 
-        List<UserOutput> clientes = new ArrayList<>();
-        String caminhoArquivo = cursoInput.getUrlDados();
-        caminhoArquivo = caminhoArquivo.replaceAll("\"", "");
+        List<UserOutput> usuarios = new ArrayList<>();
+        String caminhoCertificado = cursoInput.getUrlDados();
+        caminhoCertificado = caminhoCertificado.replaceAll("\"", "");
 
-        try (BufferedReader br = new BufferedReader(new FileReader(caminhoArquivo))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(caminhoCertificado))) {
 
             String line;
             // Ignorar a primeira linha se ela contiver cabeçalhos
@@ -60,8 +62,8 @@ public class CertificadoService {
                             // Crie seu objeto UserOutput usando nome, cpf e telefone
                             UserOutput userCreated = new UserOutput(nome, cpf, cursoInput);
 
-                            // Adicione o objeto à lista de clientes
-                            clientes.add(userCreated);
+                            // Adicione o objeto à lista de usuarios
+                            usuarios.add(userCreated);
                         }
                     }
                 } else {
@@ -75,12 +77,12 @@ public class CertificadoService {
             e.printStackTrace();
         }
 
-        for (UserOutput cliente : clientes) {
+        for (UserOutput usuario : usuarios) {
             try {
                 // Carregar o arquivo Jasper
                 InputStream arquivoJasper = this.getClass().getResourceAsStream("/template-certificado/certificado.jasper");
 
-                String[] palavras = cliente.getNome().toLowerCase().split(" ");
+                String[] palavras = usuario.getNome().toLowerCase().split(" ");
                 StringBuilder resultado = new StringBuilder();
 
                 for (String palavra : palavras) {
@@ -89,22 +91,22 @@ public class CertificadoService {
                         resultado.append(primeiraLetraMaiuscula).append(" ");
                     }
                 }
-                cliente.setNome(resultado.toString().trim());
+                usuario.setNome(resultado.toString().trim());
 
                 //Fazendo refactor dos outputs
-                cliente.setUrlImg(caminhoImg + cliente.getUrlImg());
-                if(cliente.getUrlImgVerso() != null){
-                    cliente.setUrlImgVerso(caminhoImg + cliente.getUrlImgVerso());
+                usuario.setUrlImg(caminhoImg + usuario.getUrlImg());
+                if(usuario.getUrlImgVerso() != null){
+                    usuario.setUrlImgVerso(caminhoImg + usuario.getUrlImgVerso());
                 }
-                cliente.setCpf(cliente.getCpf().replaceAll("[^0-9]", ""));
+                usuario.setCpf(usuario.getCpf().replaceAll("[^0-9]", ""));
                 //--------------------------------------
 
-                // Criar uma fonte de dados para o cliente atual
-                List<UserOutput> clienteList = new ArrayList<>();
-                clienteList.add(cliente);
-                JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(clienteList);
+                // Criar uma fonte de dados para o usuario atual
+                List<UserOutput> usuarioList = new ArrayList<>();
+                usuarioList.add(usuario);
+                JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(usuarioList);
 
-                // Preencher o relatório com os dados do cliente atual
+                // Preencher o relatório com os dados do usuario atual
                 JasperPrint jasperPrint = JasperFillManager.fillReport(arquivoJasper, null, dataSource);
 
                 // Exportar o relatório para um array de bytes (PDF)
@@ -113,7 +115,7 @@ public class CertificadoService {
 
 //                analyzerImage();
                 // Salvar o certificado
-                salvarCertificado(cliente, certificado);
+                salvarCertificado(usuario, certificado);
 
             } catch (JRException e) {
                 // Lidar com exceções relacionadas ao JasperReports
@@ -127,7 +129,7 @@ public class CertificadoService {
     private void salvarCertificado(UserOutput userOutput, byte[] certificado) {
         try {
             userOutput.setNomeCurso(userOutput.getNomeCurso().replaceAll(" ", "-"));
-            String caminhoCompleto = caminhoArquivo + userOutput.getNomeCurso() + "-certificado-" + userOutput.getCpf() + ".pdf";
+            String caminhoCompleto = caminhoCertificado + userOutput.getNomeCurso() + "-certificado-" + userOutput.getCpf() + ".pdf";
 
             File file = new File(caminhoCompleto);
 
@@ -148,60 +150,34 @@ public class CertificadoService {
         }
     }
 
+    public File procurarCertificado(String cpf){
+        File diretorio = new File(caminhoCertificado);
 
+        cpf = cpf.replaceAll("\"", "");
+        File[] arquivos = diretorio.listFiles();
+//        System.out.println(cpf);
 
-//    private void analyzerImage(){
-//        System.out.println("Entradnoooo");
-//
-//        // Carregue a imagem
-//        String imagePath = caminhoImg + "frente.jpg";
-//        System.out.println(imagePath);
-//        Mat image = Imgcodecs.imread(imagePath);
-//
-//        // Converta a imagem para escala de cinza
-//        Mat grayImage = new Mat();
-//        Imgproc.cvtColor(image, grayImage, Imgproc.COLOR_BGR2GRAY);
-//
-//        // Aplique um limiar para segmentar a parte branca
-//        Mat binaryImage = new Mat();
-//        Imgproc.threshold(grayImage, binaryImage, 200, 255, Imgproc.THRESH_BINARY);
-//
-//        // Encontre contornos na imagem binarizada
-//        List<MatOfPoint> contours = new ArrayList<>();
-//        Mat hierarchy = new Mat();
-//        Imgproc.findContours(binaryImage, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-//
-//        // Encontre o maior contorno (a maior parte branca)
-//        double maxArea = -1;
-//        MatOfPoint largestContour = null;
-//
-//        for (MatOfPoint contour : contours) {
-//            double area = Imgproc.contourArea(contour);
-//            if (area > maxArea) {
-//                maxArea = area;
-//                largestContour = contour;
-//            }
-//        }
-//
-//        // Obtenha o retângulo delimitador do maior contorno
-//        Rect boundingRect = Imgproc.boundingRect(largestContour);
-//
-//        // Exiba as coordenadas do retângulo delimitador
-//        System.out.println("Coordenada X: " + boundingRect.x);
-//        System.out.println("Coordenada Y: " + boundingRect.y);
-//
-//        // Exiba a largura e a altura do retângulo delimitador
-//        System.out.println("Largura: " + boundingRect.width);
-//        System.out.println("Altura: " + boundingRect.height);
-//
-//        // Desenhe o retângulo delimitador na imagem original
-//        Imgproc.rectangle(image, new Point(boundingRect.x, boundingRect.y),
-//                new Point(boundingRect.x + boundingRect.width, boundingRect.y + boundingRect.height),
-//                new Scalar(0, 255, 0), 2);
-//
-//        // Salve a imagem com o retângulo delimitador desenhado
-//        String outputImagePath = caminhoImg + "imagem_com_retangulo.jpg";
-//        Imgcodecs.imwrite(outputImagePath, image);
-//        System.out.println("Testeeee");
-//    }
+        if (arquivos != null) {
+            for (File arquivo : arquivos) {
+                if (arquivo.isFile()) {
+                    String nomeArquivo = arquivo.getName();
+
+                    // Utilizando expressão regular para encontrar o CPF no nome do arquivo
+                    Pattern pattern = Pattern.compile("\\d{11}"); // Expressão regular para CPF (11 dígitos)
+                    Matcher matcher = pattern.matcher(nomeArquivo);
+
+                    if (matcher.find()) {
+                        String cpfEncontrado = matcher.group();
+
+                        if (cpfEncontrado.equals(cpf)) {
+                           return arquivo;
+                        }
+                    }
+                }
+            }
+        } else {
+            System.out.println("O diretório está vazio ou não existe.");
+        }
+        return diretorio;
+    }
 }
