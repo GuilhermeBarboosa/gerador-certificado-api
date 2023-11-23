@@ -39,7 +39,7 @@ public class CertificadoService {
                 // Encontrar os índices dos cabeçalhos necessários
                 for (int i = 0; i < headers.length; i++) {
                     String header = headers[i].trim().toLowerCase(); // Converta para minúsculas e remova espaços em branco
-                    System.out.println(header);
+                    //System.out.println(header);
                     if (header.equals("\uFEFFnome") || header.equals("nome")) {
                         nomeIndex = i;
                     }
@@ -80,6 +80,17 @@ public class CertificadoService {
                 // Carregar o arquivo Jasper
                 InputStream arquivoJasper = this.getClass().getResourceAsStream("/template-certificado/certificado.jasper");
 
+                String[] palavras = cliente.getNome().toLowerCase().split(" ");
+                StringBuilder resultado = new StringBuilder();
+
+                for (String palavra : palavras) {
+                    if (!palavra.isEmpty()) {
+                        String primeiraLetraMaiuscula = palavra.substring(0, 1).toUpperCase() + palavra.substring(1);
+                        resultado.append(primeiraLetraMaiuscula).append(" ");
+                    }
+                }
+                cliente.setNome(resultado.toString().trim());
+
                 //Fazendo refactor dos outputs
                 cliente.setUrlImg(caminhoImg + cliente.getUrlImg());
                 if(cliente.getUrlImgVerso() != null){
@@ -116,7 +127,7 @@ public class CertificadoService {
     private void salvarCertificado(UserOutput userOutput, byte[] certificado) {
         try {
             userOutput.setNomeCurso(userOutput.getNomeCurso().replaceAll(" ", "-"));
-            String caminhoCompleto = caminhoArquivo + userOutput.getNomeCurso() + "-Certificado-" + userOutput.getCpf() + ".pdf";
+            String caminhoCompleto = caminhoArquivo + userOutput.getNomeCurso() + "-certificado-" + userOutput.getCpf() + ".pdf";
 
             File file = new File(caminhoCompleto);
 

@@ -21,35 +21,12 @@
 				<reportElement x="0" y="0" width="792" height="555" uuid="60835454-1354-46ed-8297-e214d1a5bdb3"/>
 				<imageExpression><![CDATA[$F{urlImg}]]></imageExpression>
 			</image>
-			<textField>
-				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="30" y="180" width="370" height="118" uuid="9b6367b3-f3eb-4bf3-a3eb-6ef35c881868"/>
-				<textElement textAlignment="Justified">
-					<font fontName="Arial" size="20"/>
+			<textField textAdjust="ScaleFont">
+				<reportElement x="100" y="300" width="408" height="30" uuid="5ccc7ff3-4daf-45ce-9ab5-26819c2ac337"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
+					<font fontName="Arial Narrow" size="16" isBold="false"/>
 				</textElement>
-				<textFieldExpression><![CDATA["O governo municipal e a secretaria de desenvolvimento social através do Programa de Inclusão Social de Portas Abertas em parceria com o Rotary Club, certifica que:"]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="275" y="419" width="125" height="30" uuid="f1f2da87-a9e2-4778-806a-4f081bf85d36">
-					<property name="com.jaspersoft.studio.unit.width" value="px"/>
-				</reportElement>
-				<textElement>
-					<font size="16"/>
-				</textElement>
-				<textFieldExpression><![CDATA[new SimpleDateFormat("dd/MM/yyyy hh:mm").format(new Date())]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement x="30" y="302" width="370" height="30" uuid="5ccc7ff3-4daf-45ce-9ab5-26819c2ac337"/>
-				<textElement textAlignment="Center" markup="styled">
-					<font fontName="Arial Black" size="20" isBold="true"/>
-				</textElement>
-				<textFieldExpression><![CDATA["<style isBold='true' pdfFontName='Helvetica-Bold'>" + $F{nome} + "</style>"]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement x="30" y="340" width="370" height="78" uuid="73ad19e0-d5d7-477b-b0f0-56de7e4423aa"/>
-				<textElement textAlignment="Justified">
-					<font fontName="Arial" size="20"/>
-				</textElement>
-				<textFieldExpression><![CDATA["participou do " + $F{nomeCurso} + " com carga horária de " + $F{horas} + " horas"]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{nome}]]></textFieldExpression>
 			</textField>
 		</band>
 		<band height="555">
