@@ -18,16 +18,16 @@ import java.util.regex.Pattern;
 
 @Service
 public class CertificadoService {
-
     private String filedir = "C:/Users/guilherme.rocha/Documents/Projetos/API's/certificado-api/src/main/resources/";
+    private String urlDados = filedir + "csv/";
     private String caminhoCertificado = filedir + "certificados/";
     private String caminhoImg = filedir + "images/";
 
     public String gerarCertificado(CursoInput cursoInput) {
 
         List<UserOutput> usuarios = new ArrayList<>();
-        String caminhoCertificado = cursoInput.getUrlDados();
-        caminhoCertificado = caminhoCertificado.replaceAll("\"", "");
+        String caminhoCertificado = urlDados + cursoInput.getUrlDados();
+//        caminhoCertificado = caminhoCertificado.replaceAll("\"", "");
 
         try (BufferedReader br = new BufferedReader(new FileReader(caminhoCertificado))) {
 

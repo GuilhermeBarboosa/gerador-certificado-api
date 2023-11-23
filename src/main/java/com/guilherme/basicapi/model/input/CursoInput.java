@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CursoInput {
     private String nomeCurso;
-    private String dataInicio;
-    private String horas;
+//    private String dataInicio;
+//    private String horas;
     private String urlDados;
     private String urlImg;
     private String urlImgVerso;

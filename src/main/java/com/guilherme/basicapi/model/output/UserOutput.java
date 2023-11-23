@@ -14,8 +14,8 @@ public class UserOutput {
     private String cpf;
 
     private String nomeCurso;
-    private String dataInicio;
-    private String horas;
+//    private String dataInicio;
+//    private String horas;
     private String urlImg;
     private String urlImgVerso;
 
@@ -23,10 +23,10 @@ public class UserOutput {
         this.nome = nome;
         this.cpf = cpf;
         this.nomeCurso = cursoInput.getNomeCurso();
-        this.dataInicio = cursoInput.getDataInicio();
-        this.horas = cursoInput.getHoras();
+//        this.dataInicio = cursoInput.getDataInicio();
+//        this.horas = cursoInput.getHoras();
         this.urlImg = cursoInput.getUrlImg();
-        if(cursoInput.getUrlImgVerso() != null){
+        if(cursoInput.getUrlImgVerso() != null || cursoInput.getUrlImgVerso() != ""){
             this.urlImgVerso = cursoInput.getUrlImgVerso();
         }
     }

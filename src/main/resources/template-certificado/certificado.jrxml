@@ -9,8 +9,6 @@
 	<field name="urlImg" class="java.lang.String"/>
 	<field name="urlImgVerso" class="java.lang.String"/>
 	<field name="nomeCurso" class="java.lang.String"/>
-	<field name="dataInicio" class="java.lang.String"/>
-	<field name="horas" class="java.lang.String"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
