@@ -7,9 +7,11 @@ import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
 
+import javax.annotation.PostConstruct;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,16 +20,26 @@ import java.util.regex.Pattern;
 
 @Service
 public class CertificadoService {
-    private String filedir = "C:/Users/guilherme.rocha/Documents/Projetos/API's/certificado-api/src/main/resources/";
-    private String urlDados = filedir + "csv/";
-    private String caminhoCertificado = filedir + "certificados/";
-    private String caminhoImg = filedir + "images/";
+
+    @Value("${filerdiretorio}")
+    private String filedir;
+    private String urlDados;
+    private String caminhoCertificado;
+    private String caminhoImg;
+
+    @PostConstruct
+    public void init() {
+        filedir = filedir.replaceAll("\"", "").replaceAll(";", "");
+        urlDados = filedir + "csv/";
+        caminhoCertificado = filedir + "certificados/";
+        caminhoImg = filedir + "images/";
+    }
+
 
     public String gerarCertificado(CursoInput cursoInput) {
 
         List<UserOutput> usuarios = new ArrayList<>();
         String caminhoCertificado = urlDados + cursoInput.getUrlDados();
-//        caminhoCertificado = caminhoCertificado.replaceAll("\"", "");
 
         try (BufferedReader br = new BufferedReader(new FileReader(caminhoCertificado))) {
 
@@ -82,6 +94,7 @@ public class CertificadoService {
                 // Carregar o arquivo Jasper
                 InputStream arquivoJasper = this.getClass().getResourceAsStream("/template-certificado/certificado.jasper");
 
+                //Trocar o nome para primeira letra maiuscula
                 String[] palavras = usuario.getNome().toLowerCase().split(" ");
                 StringBuilder resultado = new StringBuilder();
 
@@ -112,8 +125,6 @@ public class CertificadoService {
                 // Exportar o relatório para um array de bytes (PDF)
                 byte[] certificado = JasperExportManager.exportReportToPdf(jasperPrint);
 
-
-//                analyzerImage();
                 // Salvar o certificado
                 salvarCertificado(usuario, certificado);
 
@@ -143,7 +154,6 @@ public class CertificadoService {
                 FileCopyUtils.copy(certificado, fos);
             }
 
-//            System.out.println("Relatório salvo com sucesso em: " + caminhoCompleto);
         } catch (IOException e) {
             e.printStackTrace();
             // Trate a exceção conforme necessário
@@ -155,7 +165,6 @@ public class CertificadoService {
 
         cpf = cpf.replaceAll("\"", "");
         File[] arquivos = diretorio.listFiles();
-//        System.out.println(cpf);
 
         if (arquivos != null) {
             for (File arquivo : arquivos) {
@@ -180,4 +189,5 @@ public class CertificadoService {
         }
         return diretorio;
     }
+
 }

@@ -4,10 +4,7 @@ import com.guilherme.basicapi.api.service.CertificadoService;
 import com.guilherme.basicapi.model.input.CursoInput;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -53,8 +50,6 @@ public class CertificadoController {
             response.getWriter().write("Arquivo não encontrado");
         }
 
-//       return this.certificadoService.procurarCertificado(cpf);
     }
-
 
 }
