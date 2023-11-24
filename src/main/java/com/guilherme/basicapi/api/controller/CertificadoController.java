@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.nio.file.Files;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,7 +28,7 @@ public class CertificadoController {
     }
 
     @PostMapping("/procurar")
-    public void procurarCertificado(@RequestBody String cpf, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void procurarCertificado(@RequestBody String cpf, HttpServletResponse response) throws IOException {
 
         File arquivo = this.certificadoService.procurarCertificados(cpf); // Seu método para encontrar o arquivo com o CPF
 
@@ -35,7 +36,7 @@ public class CertificadoController {
             response.setContentType("application/pdf");
             response.setHeader("Content-Disposition", "attachment; filename=\"" + arquivo.getName() + "\"");
 
-            try (InputStream inputStream = new FileInputStream(arquivo);
+            try (InputStream inputStream = Files.newInputStream(arquivo.toPath());
                  OutputStream outputStream = response.getOutputStream()) {
                 byte[] buffer = new byte[1024];
                 int bytesRead;
@@ -43,7 +44,7 @@ public class CertificadoController {
                     outputStream.write(buffer, 0, bytesRead);
                 }
             } catch (IOException e) {
-                // Lidar com exceções
+                e.printStackTrace();
             }
         } else {
             response.setContentType("text/plain");

@@ -18,6 +18,7 @@ import org.springframework.util.FileCopyUtils;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -41,7 +42,7 @@ public class CertificadoService {
     }
 
 
-    public String gerarCertificado(CursoInput cursoInput) {
+    public void gerarCertificado(CursoInput cursoInput) {
 
         List<UserOutput> usuarios = new ArrayList<>();
         String caminhoCertificado = urlDados + cursoInput.getUrlDados();
@@ -58,7 +59,7 @@ public class CertificadoService {
                 // Encontrar os índices dos cabeçalhos necessários
                 for (int i = 0; i < headers.length; i++) {
                     String header = headers[i].trim().toLowerCase(); // Converta para minúsculas e remova espaços em branco
-                    //System.out.println(header);
+
                     if (header.equals("\uFEFFnome") || header.equals("nome")) {
                         nomeIndex = i;
                     }
@@ -84,14 +85,13 @@ public class CertificadoService {
                         }
                     }
                 } else {
-                    System.out.println("Cabeçalhos não encontrados");
-                    return "Cabeçalhos não encontrados";
+                    throw new Exception("Cabeçalhos não encontrados");
                 }
             }
-
-
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
         for (UserOutput usuario : usuarios) {
@@ -139,7 +139,6 @@ public class CertificadoService {
             }
         }
 
-        return "Gerador de certificado";
     }
 
     private void salvarCertificado(UserOutput userOutput, byte[] certificado) {
@@ -191,12 +190,12 @@ public class CertificadoService {
                 }
             }
         } else {
-            System.out.println("O diretório está vazio ou não existe.");
+            throw new RuntimeException("Diretório não encontrado");
         }
 
         // Cria um arquivo .rar
         File arquivoRar = new File("certificados_encontrados.rar");
-        try (OutputStream arquivoSaida = new FileOutputStream(arquivoRar);
+        try (OutputStream arquivoSaida = Files.newOutputStream(arquivoRar.toPath());
              ArchiveOutputStream saidaCompactada = new ArchiveStreamFactory().createArchiveOutputStream(ArchiveStreamFactory.ZIP, arquivoSaida)) {
 
             for (File arquivoEncontrado : arquivosEncontrados) {
