@@ -17,7 +17,7 @@
 			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
 			<image hAlign="Center" vAlign="Middle">
 				<reportElement x="0" y="0" width="792" height="555" uuid="60835454-1354-46ed-8297-e214d1a5bdb3"/>
-				<imageExpression><![CDATA[$F{urlImg}]]></imageExpression>
+				<imageExpression><![CDATA[javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(java.util.Base64.getDecoder().decode($F{urlImg})))]]></imageExpression>
 			</image>
 			<textField textAdjust="ScaleFont">
 				<reportElement x="100" y="300" width="408" height="30" uuid="5ccc7ff3-4daf-45ce-9ab5-26819c2ac337"/>
@@ -34,7 +34,7 @@
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 					<printWhenExpression><![CDATA[$F{urlImgVerso} != null ? new Boolean(true) : new Boolean(false)]]></printWhenExpression>
 				</reportElement>
-				<imageExpression><![CDATA[$F{urlImgVerso}]]></imageExpression>
+				<imageExpression><![CDATA[javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(java.util.Base64.getDecoder().decode($F{urlImgVerso})))]]></imageExpression>
 			</image>
 		</band>
 	</detail>

@@ -4,7 +4,9 @@ import com.guilherme.basicapi.api.service.CertificadoService;
 import com.guilherme.basicapi.model.input.CursoInput;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -21,12 +23,18 @@ public class CertificadoController {
     private CertificadoService certificadoService;
 
     @PostMapping
-    public String geradorDeCertificado(@RequestBody CursoInput cursoInput) {
-        this.certificadoService.gerarCertificado(cursoInput);
+    public String geradorDeCertificado(@RequestParam("urlDados") MultipartFile urlDados,
+                                       @RequestParam("dataInicio") String dataInicio,
+                                       @RequestParam("urlImg") MultipartFile urlImg,
+                                       @RequestParam("urlVerso") MultipartFile urlVerso,
+                                       @RequestParam("qtdHoras") String qtdHoras,
+                                       @RequestParam("nomeCurso") String nomeCurso) {
 
+        CursoInput cursoInput = new CursoInput( nomeCurso, urlDados, urlImg, urlVerso, qtdHoras);
+
+        this.certificadoService.gerarCertificado(cursoInput);
         return "Gerador de relatorio";
     }
-
     @PostMapping("/procurar")
     public void procurarCertificado(@RequestBody String cpf, HttpServletResponse response) throws IOException {
 
@@ -53,4 +61,19 @@ public class CertificadoController {
 
     }
 
+    @PostMapping("/upload")
+    public String uploadCSV(@ModelAttribute CursoInput cursoInput) {
+        System.out.println(cursoInput.toString());
+//        MultipartFile file = certificado.getUrlDados();
+//        System.out.println(file.getContentType());
+//        // Verifique se o arquivo é do tipo text/csv
+//        if (file != null && file.getContentType() != null && file.getContentType().equals("text/csv")) {
+//            System.out.println("Arquivo CSV recebido com sucesso!");
+//            // Aqui você pode salvar, processar ou manipular o arquivo conforme sua lógica
+//            return "Arquivo CSV recebido com sucesso!";
+//        } else {
+//            return "Por favor, envie um arquivo CSV.";
+//        }
+        return "Arquivo CSV recebido com sucesso!";
+    }
 }

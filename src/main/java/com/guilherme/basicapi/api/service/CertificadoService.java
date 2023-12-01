@@ -20,125 +20,32 @@ import javax.annotation.PostConstruct;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 @Service
 public class CertificadoService {
 
     @Value("${filerdiretorio}")
     private String filedir;
-    private String urlDados;
     private String caminhoCertificado;
-    private String caminhoImg;
 
     @PostConstruct
     public void init() {
         filedir = filedir.replaceAll("\"", "").replaceAll(";", "");
-        urlDados = filedir + "csv/";
         caminhoCertificado = filedir + "certificados/";
-        caminhoImg = filedir + "images/";
-    }
-
-
-    public void gerarCertificado(CursoInput cursoInput) {
-
-        List<UserOutput> usuarios = new ArrayList<>();
-        String caminhoCertificado = urlDados + cursoInput.getUrlDados();
-
-        try (BufferedReader br = new BufferedReader(new FileReader(caminhoCertificado))) {
-
-            String line;
-            // Ignorar a primeira linha se ela contiver cabeçalhos
-            if ((line = br.readLine()) != null) {
-                // Cabeçalhos encontrados, processar apenas se for necessário
-                String[] headers = line.split(";");
-                int nomeIndex = -1, cpfIndex = -1;
-
-                // Encontrar os índices dos cabeçalhos necessários
-                for (int i = 0; i < headers.length; i++) {
-                    String header = headers[i].trim().toLowerCase(); // Converta para minúsculas e remova espaços em branco
-
-                    if (header.equals("\uFEFFnome") || header.equals("nome")) {
-                        nomeIndex = i;
-                    }
-                    if (header.equals("cpf")) {
-                        cpfIndex = i;
-                    }
-                }
-
-                // Verificar se todos os cabeçalhos foram encontrados
-                if (nomeIndex != -1 && cpfIndex != -1) {
-                    // Processar as linhas restantes do arquivo
-                    while ((line = br.readLine()) != null) {
-                        String[] campos = line.split(";");
-                        if (campos.length > Math.max(nomeIndex, cpfIndex)) {
-                            String nome = campos[nomeIndex].trim();
-                            String cpf = campos[cpfIndex].trim();
-
-                            // Crie seu objeto UserOutput usando nome, cpf e telefone
-                            UserOutput userCreated = new UserOutput(nome, cpf, cursoInput);
-
-                            // Adicione o objeto à lista de usuarios
-                            usuarios.add(userCreated);
-                        }
-                    }
-                } else {
-                    throw new Exception("Cabeçalhos não encontrados");
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        for (UserOutput usuario : usuarios) {
-            try {
-                // Carregar o arquivo Jasper
-                InputStream arquivoJasper = this.getClass().getResourceAsStream("/template-certificado/certificado.jasper");
-
-                //Trocar o nome para primeira letra maiuscula
-                String[] palavras = usuario.getNome().toLowerCase().split(" ");
-                StringBuilder resultado = new StringBuilder();
-
-                for (String palavra : palavras) {
-                    if (!palavra.isEmpty()) {
-                        String primeiraLetraMaiuscula = palavra.substring(0, 1).toUpperCase() + palavra.substring(1);
-                        resultado.append(primeiraLetraMaiuscula).append(" ");
-                    }
-                }
-                usuario.setNome(resultado.toString().trim());
-
-                //Fazendo refactor dos outputs
-                usuario.setUrlImg(caminhoImg + usuario.getUrlImg());
-                if (usuario.getUrlImgVerso() != null) {
-                    usuario.setUrlImgVerso(caminhoImg + usuario.getUrlImgVerso());
-                }
-                usuario.setCpf(usuario.getCpf().replaceAll("[^0-9]", ""));
-                //--------------------------------------
-
-                // Criar uma fonte de dados para o usuario atual
-                List<UserOutput> usuarioList = new ArrayList<>();
-                usuarioList.add(usuario);
-                JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(usuarioList);
-
-                // Preencher o relatório com os dados do usuario atual
-                JasperPrint jasperPrint = JasperFillManager.fillReport(arquivoJasper, null, dataSource);
-
-                // Exportar o relatório para um array de bytes (PDF)
-                byte[] certificado = JasperExportManager.exportReportToPdf(jasperPrint);
-
-                // Salvar o certificado
-                salvarCertificado(usuario, certificado);
-
-            } catch (JRException e) {
-                // Lidar com exceções relacionadas ao JasperReports
-                e.printStackTrace();
-            }
-        }
-
     }
 
     private void salvarCertificado(UserOutput userOutput, byte[] certificado) {
@@ -213,4 +120,81 @@ public class CertificadoService {
         return arquivoRar;
     }
 
+    public String gerarCertificado(CursoInput cursoInput) {
+        List<UserOutput> usuarios = new ArrayList<>();
+
+        try {
+            // Lê o arquivo CSV como um InputStream
+            BufferedReader reader = new BufferedReader(new InputStreamReader(cursoInput.getUrlDados().getInputStream()));
+
+            // Cria um CSVParser
+            CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT);
+
+            // Itera sobre as linhas do arquivo CSV
+            for (CSVRecord csvRecord : csvParser) {
+                // Para cada linha, você pode acessar os valores das colunas
+                String column1 = csvRecord.get(0); // Obtém o valor da primeira coluna
+
+                String[] values = column1.split(";");
+
+                if (values.length >= 2) {
+                    // Obtém o nome e o CPF separadamente
+                    String nome = values[0].trim(); // Remove espaços em branco extras
+                    String cpf = values[1].trim(); // Remove espaços em branco extras
+                    // Crie seu objeto UserOutput usando nome, cpf e telefone
+
+                    UserOutput userCreated = new UserOutput(nome, cpf, cursoInput);
+                    usuarios.add(userCreated);
+
+                } else {
+                    // Lidar com linhas do CSV que não possuem as duas partes (nome e CPF separados por ';')
+                    System.out.println("Formato incorreto na linha: " + column1);
+                }
+            }
+
+            // Fecha o parser
+            csvParser.close();
+
+            for (UserOutput usuario : usuarios) {
+                // Carregar o arquivo Jasper
+                InputStream arquivoJasper = this.getClass().getResourceAsStream("/template-certificado/certificado.jasper");
+
+                //Trocar o nome para primeira letra maiuscula
+                String[] palavras = usuario.getNome().toLowerCase().split(" ");
+                StringBuilder resultado = new StringBuilder();
+
+                for (String palavra : palavras) {
+                    if (!palavra.isEmpty()) {
+                        String primeiraLetraMaiuscula = palavra.substring(0, 1).toUpperCase() + palavra.substring(1);
+                        resultado.append(primeiraLetraMaiuscula).append(" ");
+                    }
+                }
+                usuario.setNome(resultado.toString().trim());
+                usuario.setCpf(usuario.getCpf().replaceAll("[^0-9]", ""));
+                //--------------------------------------
+
+                // Criar uma fonte de dados para o usuario atual
+                List<UserOutput> usuarioList = new ArrayList<>();
+                usuarioList.add(usuario);
+
+                JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(usuarioList);
+
+                // Preencher o relatório com os dados do usuario atual
+                JasperPrint jasperPrint = JasperFillManager.fillReport(arquivoJasper, null, dataSource);
+
+                // Exportar o relatório para um array de bytes (PDF)
+                byte[] certificado = JasperExportManager.exportReportToPdf(jasperPrint);
+
+                // Salvar o certificado
+                salvarCertificado(usuario, certificado);
+
+            }
+
+            return "Arquivo CSV processado com sucesso!";
+
+        } catch (IOException | JRException e) {
+            e.printStackTrace();
+            return "Erro ao processar o arquivo CSV";
+        }
+    }
 }

@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.IOException;
+import java.util.Base64;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,21 +17,28 @@ public class UserOutput {
     private String cpf;
 
     private String nomeCurso;
-//    private String dataInicio;
-//    private String horas;
     private String urlImg;
     private String urlImgVerso;
 
-    public UserOutput(String nome,String cpf, CursoInput cursoInput) {
+    public UserOutput(String nome,String cpf, CursoInput cursoInput) throws IOException {
         this.nome = nome;
         this.cpf = cpf;
         this.nomeCurso = cursoInput.getNomeCurso();
-//        this.dataInicio = cursoInput.getDataInicio();
-//        this.horas = cursoInput.getHoras();
-        this.urlImg = cursoInput.getUrlImg();
-        if(cursoInput.getUrlImgVerso() != null || cursoInput.getUrlImgVerso() != ""){
-            this.urlImgVerso = cursoInput.getUrlImgVerso();
+
+        try {
+            byte[] bytesImg = cursoInput.getUrlImg().getBytes();
+            String imgBase64 = Base64.getEncoder().encodeToString(bytesImg);
+            this.urlImg = imgBase64;
+
+            if (cursoInput.getUrlImgVerso() != null) {
+                byte[] bytesImgVerso = cursoInput.getUrlImgVerso().getBytes();
+                String imgBase64Verso = Base64.getEncoder().encodeToString(bytesImgVerso);
+                this.urlImgVerso = imgBase64Verso;
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+
     }
 
 }
