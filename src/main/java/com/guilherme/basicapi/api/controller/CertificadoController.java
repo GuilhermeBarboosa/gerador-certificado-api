@@ -1,10 +1,14 @@
 package com.guilherme.basicapi.api.controller;
 
 import com.guilherme.basicapi.api.service.CertificadoService;
+import com.guilherme.basicapi.errors.VerifyType;
+import com.guilherme.basicapi.exception.ApiException;
 import com.guilherme.basicapi.model.input.CursoInput;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,8 +26,11 @@ public class CertificadoController {
     @Autowired
     private CertificadoService certificadoService;
 
+    @Autowired
+    private VerifyType verifyType;
+
     @PostMapping
-    public String geradorDeCertificado(@RequestParam("urlDados") MultipartFile urlDados,
+    public ResponseEntity<?> geradorDeCertificado(@RequestParam("urlDados") MultipartFile urlDados,
                                        @RequestParam("dataInicio") String dataInicio,
                                        @RequestParam("urlImg") MultipartFile urlImg,
                                        @RequestParam("urlVerso") MultipartFile urlVerso,
@@ -31,9 +38,12 @@ public class CertificadoController {
                                        @RequestParam("nomeCurso") String nomeCurso) {
 
         CursoInput cursoInput = new CursoInput( nomeCurso, urlDados, urlImg, urlVerso, qtdHoras);
+//        if (this.verifyType.isTypeFile(cursoInput) != null) {
+//            ApiException exception = new ApiException(this.verifyType.isTypeFile(cursoInput));
+//            return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body(exception);
+//        }
 
-        this.certificadoService.gerarCertificado(cursoInput);
-        return "Gerador de relatorio";
+        return ResponseEntity.ok(this.certificadoService.gerarCertificado(cursoInput));
     }
     @PostMapping("/procurar")
     public void procurarCertificado(@RequestBody String cpf, HttpServletResponse response) throws IOException {
@@ -58,7 +68,6 @@ public class CertificadoController {
             response.setContentType("text/plain");
             response.getWriter().write("Arquivo não encontrado");
         }
-
     }
 
     @PostMapping("/upload")

@@ -130,10 +130,16 @@ public class CertificadoService {
             // Cria um CSVParser
             CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT);
 
+            List<CSVRecord> records = csvParser.getRecords();
+
+            if (!records.isEmpty()) {
+                records.remove(0);
+            }
+
             // Itera sobre as linhas do arquivo CSV
-            for (CSVRecord csvRecord : csvParser) {
+            for (CSVRecord record : records) {
                 // Para cada linha, você pode acessar os valores das colunas
-                String column1 = csvRecord.get(0); // Obtém o valor da primeira coluna
+                String column1 = record.get(0); // Obtém o valor da primeira coluna
 
                 String[] values = column1.split(";");
 
@@ -148,7 +154,7 @@ public class CertificadoService {
 
                 } else {
                     // Lidar com linhas do CSV que não possuem as duas partes (nome e CPF separados por ';')
-                    System.out.println("Formato incorreto na linha: " + column1);
+                    //System.out.println("Formato incorreto na linha: " + column1);
                 }
             }
 
